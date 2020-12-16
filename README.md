@@ -1,5 +1,5 @@
 # showcase
-This repository was made as a place to put some code I was proud of to show to someone who is kind enough to be writing me a letter of recommendation. In this readme, I'll describe each of files. 
+This repository was made as a place to put some code I was proud of to show to someone who is kind enough to be writing me a letter of recommendation. In this readme, I'll describe each of files. All of the .html files are html output from the .rmd files.  
 
 ## monte_carlo_meta_cv.R 
 

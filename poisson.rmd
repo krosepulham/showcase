@@ -1,0 +1,242 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(latex2exp)
+```
+
+# Simulating non-homogeneous poisson point processes using filtering, and by simulating interarrival times. 
+
+During my probability, computation, and simulation course in the fall of 2019, I did a project on inhomogeneous poisson processes. Here is some of the (rough) theory behind my work and the simulations. The notation I use here is simplified to match the scope of my project, and my understanding of the theory at that time.
+
+In class, we discussed homogenous poisson point processes. We define a point process where we count the number of points in an interval of $\mathbb{R}$, $[0,t)$, denoted $N(t)$. We supposed that for some constant rate parameter $\lambda$, that $N(t)\sim poisson(\lambda t)$. In addition, we also have these properties
+
+1. $N(0)=0$ 
+2. $N(t+s)-N(t)\; \bot \; N(t)$ (intervals are independent)
+3. $N(t+s)-N(t)=_d N(s)$ (the number of events of an interval depends only on interval length, not location)
+4. $P(N(h)=1)\rightarrow\lambda h$ as $h\rightarrow0$
+5. $\frac{P(N(h)\geq2)}{h}\rightarrow0$ as $h\rightarrow0$ (Events occur 1 at a time)
+
+For a inhomogenneous poisson process, the motivation is that we want events to occur with higher probability in some places than others. For instance, we may wish to model calls to a 911 service center as a poisson point process because the independence of time intervals, and because calls do not come in perfectly simultaneously. However, the idea that the number of events occurring in a time interval only depends on the interval length and not on location instinctively doesn't seem applicable; during rush hour we would probably expect to observe more 911 calls than we would around 4 in the morning.
+
+This is the motivation for the homogeneous poisson process: we want the process to produce more points in some regions than in others. To accommodate this new sort of process, we will change our notation a bit. Lets define our point process by saying that the number of points observed in some measurable set $S$ is denoted by $N(S)$. Let us now define some integrable, strictly non-negative function $\lambda (t)$ to be the *intensity function* for the point process. Now we say that the process is an inhomogeneous poisson point process if
+$$N(S)\sim poisson(\Lambda(S))$$
+where
+$$\Lambda(S)=\int_{t\in S}\lambda(t)dt$$
+is called the expectation function over the set S.
+
+The above definition was intended to be as general as possible to allow for inhomogeneous poisson processes in any number of dimensions. 
+
+It should be noted that poisson point processes can be defined over manifolds (Kingman), which are spaces where euclidean geometry does not hold globally, but does hold locally for small neighborhoods. For this project, I limited my scope to spaces of $\mathbb{R}^n$. 
+
+In $\mathbb{R}$, we can define an inhomogeneous poisson process as follows. Let $N[a,b)$, the number of points in the interval $[a,b)$, follow an inhomogeneous poisson process with intensity function $\lambda(t)$. Then 
+$$N[a,b)\sim poisson(\Lambda(a,b))$$
+where
+$$\Lambda(a,b)=\int_a^b\lambda(t)dt$$
+
+From these definition we get two analogous properties to properties 1 and 2 of the homogenous poisson process:
+
+1. $N(A)=0$ if $A$ is of measure 0
+2. For any two sets $A$ and $B$, if $A$ and $B$ are disjoint, then $N(A)\bot N(B)$
+
+This definition can be extended to other spaces by defining the process by saying that for any measurable space $(S,\mathcal{S})$ equipped with a measure $\mu$ we define the poisson process by saying that the number of points counted in any set $A\in\mathcal{S}$ is denoted by $\int_A fd\mu$ where f is the intensity function.
+
+## Simulation
+
+For a homogenous poisson point process in $\mathbb{R}$, we can simulate a poisson process by simulating the interarrival times between points. This is because these points follow an exponential distribution, which we derive by looking at the probability of there being no points in certain intervals. We can repeat this process, abstracting to the inhomogenous case. Suppose we know the $(k-1)$th arrival time, $a$, and we want to know the $k$th interarrival time (the time between events k-1 and k), $I_k$. Then we can describe the following expression for the cdf of $I_{k}$:
+$$
+F_{I_k}(t)=P(N(a,t)>0)=1-P(N(a,t)=0)=1-e^{-\Lambda(a,a+t)}
+$$
+where
+$$
+\Lambda(a,a+t)=\int_a^{a+t}\lambda(t)dt
+$$
+where $\lambda(t)$ is the intensity function. Although this is not necessarily a simple exponential random variable, we can use the method of inverse transformation to simulate it, since $\Lambda(t)$ will be monotone since it's the integral of a strictly non-negative integrable function. ($\Lambda(t)=\int_0^t\lambda(x)dx$) Since this means $\Lambda^{-1}(t)$ exists, we can solve the above equation with respect to t to find
+$$t=\Lambda^{-1}\{-log(1-F_{I_n}(t))\}$$
+and thus 
+$$F^{-1}(t)=\Lambda^{-1}(-log(1-t))$$
+and so $F^{-1}(U)$, where $U\sim uniform(0,1)$, will follow the desired distribution. An analytical solution for $\Lambda^{-1}$ may not exist, in which case we would need to find a numeric solution and use numeric methods (hopefully I'll come back to this problem, it's an interesting one).
+
+### Example 1: simulating a 1-dimensional Inhomogeneous Poisson process via inter-arrival times. 
+
+Let us consider an inhomogeneous poisson process on the interval $(-1,1)$ that has an intensity function of $\lambda(t)=20t^4$:
+```{r, echo=FALSE}
+x=seq(from=-1,to=1,by=.01)
+y=20*x^4
+plot(x,y,
+     type='l',
+     main=TeX('$\\lambda(t)=20t^4$'),
+     xlab=TeX('t'),
+     ylab=TeX('$\\lambda(t)$')
+)
+abline(h=0)
+```
+Here, we are selecting $t^4$ to get us two distinct regions where points are likely to occur, and we multiply by 20 to ensure that the expected number of points for the whole region is large enough that we're likely observe a couple points each time.
+
+This means that 
+$$\Lambda(a, a+t)=20\int_a^{a+t}x^4dx=4((a+t)^5-a^5)$$
+so 
+$$\Lambda^{-1}(t|a)=(t/4+a^5)^{1/5}-a$$
+Therefore
+$$F^{-1}(U)=\left(\frac{1}{4}(-log(1-U))+a^5\right)^{1/5}-a$$
+where a is the last arrival time. This gives us the following algorithm for generating the process via interarrival times:
+
+1. let $a_0$ be the start time of the process
+2. Generate a uniform(0,1) random variable U
+3. let $a_i = a_{i-1} + F^{-1}(U)$
+4. If $a_i$ is smaller than the lower bound, go back to step 2 to find the next $a_i$
+5. $a_1,a_2,...a_{i-1}$ become the arrival times of the $n=i-1$ events.
+
+Implementing this algorithm, we produce the following Poisson process: 
+```{r}
+I <- c() #initialize interarrival time vector
+A <- c() #initialize arrival time vector
+lower.bound <- -1
+upper.bound <- 1
+a <- lower.bound
+
+require(pracma) #Package for handling the 5th root
+
+transform <- function(b){
+  x <- (.25*(-log(1-runif(1)))+ b^5)
+  x <- nthroot(x,5) -b
+  x
+}
+
+ptm <- proc.time() #timing the simulation, after all variables and functions are initialized
+#simulation
+while(a<upper.bound){
+  intarrtime <- transform(a)
+  a <- a+intarrtime
+  if(a<upper.bound){
+    A <- c(A,a)
+    I <- c(I,intarrtime)
+    } 
+}
+interrarrival.sim.time <- proc.time() - ptm #stop the clock
+cat("Arrival times:\n")
+A 
+cat("interarrival times:\n")
+I
+plot(A,
+     rep(1,length(A)),
+     xlim=c(-1,1),
+     ylab="",
+     pch=1,
+     xlab="Time of events",
+     main="1D Inhomogeneous Poisson Process simulated by interarrival times", 
+     cex.main=.75,
+     yaxt='n'
+     )
+```
+
+We can also simulate this same process via a process called thinning. Thinning is basically just the accept reject algorithm, where we're taking $M=\max_{t\in(-1,1)}\{\lambda(t)\}=20$. We then generate a uniform random variable on $(-1,1)$, and accept it with the probability equal to 
+$$
+P(\text{accept point }u)=\frac{\lambda(u)}{M}=\frac{20*u^4}{20}=u^4
+$$
+Note that the accept probability needn't be this simple. We also need to know the expectation for the process over the whole interval:
+$$
+\Lambda(-1,1)=20\int_{-1}^1t^4dt=8
+$$
+
+We can now implement the algorithm, which is as follow:
+
+1. Generate the number of points $N\sim poisson(\Lambda(-1,1))$
+2. Generate a random variable $u=uniform(-1,1)$ 
+3. Accept $u$ with probability $p=u^4$
+4. If fewer than N numbers have been accepted, return to step 2
+```{r}
+N <- rpois(1,8)
+A <- c()
+
+ptm <- proc.time() #timing the simulation, after all variables and functions are initialized
+while (length(A)<N){
+  u <- runif(1,min=-1,max=1)
+  if(rbinom(1,1,u^4)){
+    A <- c(A,u)
+  }
+}
+thinning.sim.time <- proc.time() - ptm #stop the clock
+
+plot(A,
+     rep(1,length(A)),
+     xlim=c(-1,1),
+     ylab="",
+     pch=1,
+     xlab="Time of events",
+     main="1D Inhomogeneous Poisson Process simulated by thinning", 
+     cex.main=.75,
+     yaxt='n'
+     )
+```
+
+Here's how long each simulation took:
+```{r}
+interrarrival.sim.time
+thinning.sim.time
+```
+
+The interarrival times seem to take longer than thinning for this problem. I suspect this may not always be the case; if the accept probability is something much more complex than $u^4$, or if there is a large region in the domain with low accept probability, this computation could take more time, in which case iterating through the accept reject loop numerous times may cause the simulation to run more slowly. 
+
+Thinning may also be used to simulate an inhomogenous poisson process in higher dimensions. Consider the inhomogenous poisson process defined in $\mathbb{R}^2$ constrained by $0<x,y<2\pi$, with intensity function 
+$$
+\lambda(x,y)=sin^2(x^2+y^2)
+$$
+Then 
+$$
+\Lambda([0,2\pi]\times[0,2\pi])=\int_0^{2\pi}\int_0^{2\pi}sin^2(x^2+y^2)dxdy\approx 19.76
+$$
+
+The algorithm is the same in principle. We will be generating a uniform random vector on $[0,2\pi]\times[0,2\pi]$, and the reject probability will be given by sin^2(x^2+y^2) since $M=1$. We'll "run this simulation multiple times" by creating an N that's the sum of 100 poisson random variables. This is to make the intensity function visible in the plot.
+
+```{r}
+N <- sum(rpois(1,19.76))
+Ax <- c()
+Ay <- c()
+
+while (length(Ax)<N){
+  u <- runif(2,min=0,max=2*pi)
+  if(rbinom(1,1,sin(u[1]^2+u[2]^2)^4)){
+    Ax <- c(Ax,u[1])
+    Ay <- c(Ay,u[2])
+  }
+}
+
+plot(Ax,Ay,
+     asp=1,
+     xlab="x",
+     ylab="y"
+     )
+```
+
+This plot is pretty uninteresting because of how small the expectation function is relative to the area of the region of interest. Let's do a similar process, with a different region, and a much larger expected value $\Lambda$. Let's use $[-2\pi,2\pi]\times[-2\pi,2\pi]$ as a region, and force the expectation $\Lambda$ to be 400 by multiplying by whatever normalizing constant we need to. The reject probability remains unchanged, because the maximum $M$ is scaled by the same normalizing constant as $\lambda(x,y)$
+
+```{r}
+N <- rpois(1,1000)
+Ax <- c()
+Ay <- c()
+
+while (length(Ax)<N){
+  u <- runif(2,min=-2*pi,max=2*pi)
+  if(rbinom(1,1,sin(u[1]^2+u[2]^2)^4)){
+    Ax <- c(Ax,u[1])
+    Ay <- c(Ay,u[2])
+  }
+}
+
+plot(Ax,Ay,
+     asp=1,
+     xlab="x",
+     ylab="y",
+     pch=20
+     )
+```
+
+You can see the waveform in the plot of this poisson process! It's interesting to see how the increase in waveform frequency manifests as more chaotic and noisy points, and makes the waveform less discernible at larger values of r.
+
+---
+#### References:
+
+Kingman, J. F. C. Poisson Processes. Oxford: Clarendon, 1993. Oxford Studies in Probability ; 3. Web.

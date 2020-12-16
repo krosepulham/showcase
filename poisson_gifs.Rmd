@@ -1,0 +1,63 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gifski)
+library(ggplot2)
+```
+
+```{r, animation.hook='gifski', interval=0.3, cache=T}
+for (i in 1:15){
+
+N <- rpois(1,1000)
+Ax <- c()
+Ay <- c()
+
+while (length(Ax)<N){
+  u <- runif(2,min=-2*pi,max=2*pi)
+  if(rbinom(1,1,sin(sqrt(u[1]^2+u[2]^2)-3.14*i/15)^4)){
+    Ax <- c(Ax,u[1])
+    Ay <- c(Ay,u[2])
+  }
+}
+
+plot(Ax,Ay,
+     asp=1,
+     xlab="x",
+     ylab="y",
+     pch=20
+     )
+  
+}
+```
+```{r, animation.hook='gifski', interval=0.3, cache=T}
+for(i in 1:15){
+  #find number of points
+  n <- rpois(1,10)
+  
+  #place the points
+  x <- rep(-1,n) 
+  for(j in 1:n){
+    while(x[j]==-1){
+      point <- c(runif(1,0,1),runif(1,0,20))
+      if(point[2]<(10*(1-cos(4*pi*point[1])))){
+        x[j] <- point[1]
+      }
+    }
+  }
+  
+  #plot the set of points
+  t<-seq(0,1,length.out=300)
+  plot(x,rep(0,n),
+       pch=16,
+       xlim=c(0,1),
+       ylim=c(-0.5,2),
+       xlab="", 
+       ylab="")+
+    lines(t,(1-cos(4*pi*t)))
+    
+}
+```
+

@@ -1,5 +1,13 @@
 # showcase
-This repository was made as a place to put some code I was proud of to show to someone who is kind enough to be writing me a letter of recommendation. In this readme, I'll describe each of files. All of the .html files are html output from the .rmd files.  
+This repository was made as a place to put some code I was proud of to show to someone who is kind enough to be writing me a letter of recommendation. In this readme, I'll describe each of files. All of the .html files are html output from the .rmd files. 
+
+## CliMates Data Dashboard
+
+My colleagues at Oregon State University and I created a Data Dashboard for three large climate data sets using Shiny, an R Package for creating interactive web applications. Our webapp took millions of rows of data and distilled them into interactive and informative visualizations. I was responsible for the idea for and execution of the “Decadal Cumulative Precipitation” tool, which helps visualize and understand seasonal and long-term trends in regional precipitation. Web app can be viewed at https://jimmylovestea.shinyapps.io/datadash/ 
+
+## An Introduction to Generalized Linear Models
+
+I worked with several of my colleagues at Oregon State University to author a short, high level introduction to the concept of generalized linear models. The tone and language were informal, and the intended audience was students currently enrolled in statistics classes at Oregon State University who are seeking supplementary instruction on the subject. The book can be viewed at https://generalizedregressionmodelingagency.github.io/GRMA/
 
 ## monte_carlo_meta_cv.R 
 

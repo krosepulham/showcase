@@ -3,7 +3,7 @@ This repository was made as a place to put various projects I have worked on dur
 
 ## Nonlinear Least Squares and logistic curve models: a simulation study of bias
 
-A colleague of mine was working with some plant data she had collected during her field work. A statistical consultant recommended to her that she use the nonlinear least squares function in R to estimate her model. I wanted to see if the estimates produced by such a model would be biased, and if so, whether or not that bias would be large enough to be of major concern. 
+A colleague of mine was working with some plant data she had collected during her field work. A statistical consultant recommended to her that she use the nonlinear least squares function in R to estimate her model. I wanted to see if the estimates produced by such a model would be biased, and if so, whether or not that bias would be large enough to be of major concern. The relevant files are LogisticNLSBias.pdf and LogisticNLSBias.Rmd
 
 ## CliMates Data Dashboard
 

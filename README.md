@@ -1,5 +1,9 @@
 # showcase
-This repository was made as a place to put some code I was proud of to show to someone who is kind enough to be writing me a letter of recommendation. In this readme, I'll describe each of files. All of the .html files are html output from the .rmd files. 
+This repository was made as a place to put various projects I have worked on during my graduate studies. A couple were projects I did for classes I took, but but most are projects I worked on outside of my coursework. They demonstrate some of the skills I have developed, but not all. 
+
+## Nonlinear Least Squares and logistic curve models: a simulation study of bias
+
+A colleague of mine was working with some plant data she had collected during her field work. A statistical consultant recommended to her that she use the nonlinear least squares function in R to estimate her model. I wanted to see if the estimates produced by such a model would be biased, and if so, whether or not that bias would be large enough to be of major concern. 
 
 ## CliMates Data Dashboard
 
